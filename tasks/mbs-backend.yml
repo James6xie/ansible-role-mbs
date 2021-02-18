@@ -1,0 +1,216 @@
+---
+- name: Install mbs-backend packages
+  yum:
+    name:
+      - module-build-service
+      - python3-stevedore
+      - python3-psycopg2
+      - python3-stevedore
+      - python3-psutil
+      - python3-vine < 5.0.0
+      - python3-mod_wsgi
+      - python3-pungi >= 4.2.3
+    state: present
+    update_cache: true
+    enablerepo: "{{ mbs_custom_repo_name }}"
+    disable_gpg_check: "{{ mbs_custom_repo_gpg_check }}"
+  become: true
+  notify:
+    - Restart apache
+    - Restart fedmsg-hub
+
+- name: Kill development configs
+  file:
+    path: /etc/fedmsg.d/{{ item }}
+    state: absent
+  with_items:
+    - module_build_service.py
+    - mbs-logging.py
+  become: true
+  notify:
+    - Restart apache
+    - Restart fedmsg-hub
+
+- name: Ensure log dir exists
+  file:
+    path: "{{ mbs_config_log_file | dirname }}"
+    mode: 0777
+    state: directory
+  become: true
+  when: mbs_config_log_backend == 'file'
+
+- name: copy app configuration
+  template:
+    src: mbs/config.py.j2
+    dest: /etc/module-build-service/config.py
+    owner: root
+    group: fedmsg
+    mode: 0644
+  become: true
+  notify:
+    - Restart apache
+    - Restart fedmsg-hub
+
+- name: copy koji configuration
+  template:
+    src: mbs/koji.conf.j2
+    dest: /etc/module-build-service/koji.conf
+    owner: root
+    group: fedmsg
+    mode: 0644
+  become: true
+  notify:
+    - Restart fedmsg-hub
+
+- name: copy fedmsg configuration
+  template:
+    src: mbs/mbs-fedmsg.py.j2
+    dest: /etc/fedmsg.d/mbs-fedmsg.py
+    owner: root
+    group: fedmsg
+    mode: 0644
+  become: true
+  notify:
+    - Restart apache
+    - Restart fedmsg-hub
+
+- name: create /var/cache/fedmsg/ directory for krb ccache
+  file:
+    path: /var/cache/fedmsg/
+    state: directory
+    owner: fedmsg
+    group: fedmsg
+    mode: 0750
+  become: true
+
+- name: create /etc/pdc.d directory
+  file:
+    path: /etc/pdc.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
+  become: true
+
+- name: copy pdc client config file
+  template:
+    src: mbs/pdc-client.json.j2
+    dest: /etc/pdc.d/{{ mbs_pdc_client_name }}.json
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  notify:
+    - Restart apache
+    - Restart fedmsg-hub
+
+- name: copy the MBS rabbitmq private queue crt
+  copy:
+    src: "{{ mbs_mq_cert }}"
+    dest: /etc/module-build-service/mbs-private-queue.crt
+    owner: root
+    group: fedmsg
+    mode: 0640
+  become: true
+
+- name: copy the MBS rabbitmq private queue key
+  copy:
+    src: "{{ mbs_mq_key }}"
+    dest: /etc/module-build-service/mbs-private-queue.key
+    owner: root
+    group: fedmsg
+    mode: 0640
+  become: true
+
+- name: copy the MBS rabbitmq CA cert
+  copy:
+    src: "{{ mbs_mq_ca }}"
+    dest: /etc/module-build-service/ca.crt
+    owner: root
+    group: fedmsg
+    mode: 0640
+  become: true
+
+
+- name: Add the systemd service files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "0644"
+  with_items:
+    - src: mbs/mbs-worker@.service.j2
+      dest: /etc/systemd/system/mbs-worker@.service
+    - src: mbs/mbs-poller.service.j2
+      dest: /etc/systemd/system/mbs-poller.service
+  become: true
+  notify:
+    - Restart mbs poller
+    - Restart mbs workers
+
+- name: Enable the MBS workers
+  systemd:
+    name: "mbs-worker@{{ item }}"
+    daemon_reload: yes
+    enabled: yes
+    state: started
+  with_sequence: start=0 end={{ mbs_num_workers - 1 }}
+  become: true
+
+- name: Start and enable mbs-poller service
+  systemd:
+    name: mbs-poller
+    enabled: yes
+    state: started
+  become: true
+
+- name: Populate the service facts to detect if there are MBS workers to disable
+  service_facts: {}
+
+- name: Disable any extra MBS workers
+  systemd:
+    name: "mbs-worker@{{ worker_num }}"
+    enabled: no
+    state: stopped
+  with_items: "{{ ansible_facts.services | select('match', 'mbs-worker@\\d+.service') | list }}"
+  vars:
+    worker_num: "{{ item | regex_search('\\d+') }}"
+  when: (worker_num | int) >= mbs_num_workers
+  become: true
+
+- name: create /etc/module-build-service/default-modules directory
+  file:
+    path: /etc/module-build-service/default-modules
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
+  become: true
+
+- name: copy default modules to /etc/module-build-service/default-modules
+  copy:
+      src: "{{ item }}"
+      dest: /etc/module-build-service/default-modules
+  with_fileglob:
+    - "{{ mbs_default_modules_dir }}/*.yaml"
+  become: true
+
+- name: Upgrade database
+  command: /usr/bin/mbs-manager db upgrade
+  when: mbs_upgrade_db
+  register: mbs_db_output
+  changed_when: "'Running upgrade' in mbs_db_output.stdout"
+  failed_when: mbs_db_output.rc != 0
+  become: true
+
+- name: Get files on remote machine
+  find:
+    paths: /etc/module-build-service/default-modules/*.yaml
+  register: mbs_module_list
+
+- name: import default-modules
+  shell: /usr/bin/mbs-manager import_module {{ item }}
+  with_items: "{{ mbs_module_list.files }}"
+  become: true
+  when: mbs_import_default_modules

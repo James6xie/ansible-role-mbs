@@ -1,0 +1,82 @@
+---
+- name: Install mbs-frontend packages
+  yum:
+    name:
+      - httpd
+    state: present
+  become: true
+
+- name: Copy mbs httpd config
+  file:
+    path: /httpdir
+    state: directory
+    owner: apache
+    group: apache
+    mode: 0644
+  become: true
+  notify:
+    - Restart apache
+
+- name: Copy mbs httpd config
+  template:
+    src: mbs/mbs.conf.j2
+    dest: /etc/httpd/conf.d/mbs.conf
+    owner: apache
+    group: apache
+    mode: 0644
+  become: true
+  notify:
+    - Restart apache
+
+- name: Disable the scheduler on the frontend
+  template:
+    src: mbs/mbs-scheduler.py.j2
+    dest: /etc/fedmsg.d/mbs-scheduler.py
+    owner: fedmsg
+    group: fedmsg
+    mode: 0644
+  become: true
+  notify:
+    - Restart apache
+
+- name: Make sure fedmsg-hub isn't running on the frontend.
+  service:
+    name: fedmsg-hub-3
+    state: stopped
+    enabled: false
+  become: true
+  failed_when: false
+
+- name: Ensure /usr/share/mbs folder exists
+  file:
+    path: /usr/share/mbs/
+    state: directory
+  become: true
+
+- name: Copy custom wsgi file
+  template:
+    src: mbs/mbs.wsgi.j2
+    dest: /usr/share/mbs/mbs.wsgi
+    mode: 0644
+  become: true
+  notify:
+    - Restart apache
+
+- name: Ensure selinux lets httpd talk to postgres, memcached, and mail
+  seboolean:
+    name: "{{ item }}"
+    state: true
+    persistent: true
+  with_items:
+    - httpd_can_network_connect_db
+    - httpd_can_network_memcache
+    - httpd_can_network_connect
+    - httpd_can_sendmail
+  become: true
+
+- name: Make httpd logs world readable
+  file:
+    name: /var/log/httpd
+    state: directory
+    mode: 0755
+  become: true

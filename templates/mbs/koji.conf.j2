@@ -1,0 +1,15 @@
+[{{ mbs_config_type }}]
+server = {{ kojihub_top_url }}/kojihub
+weburl = {{ kojihub_top_url }}/koji
+topurl = {{ kojihub_top_url }}
+
+authtype = {{ kojihub_auth_type }}
+{% if  kojihub_auth_type == 'kerberos' %}
+krb_rdns = {{ kojihub_kerberos_rdns | bool }}
+{% endif %}
+{% if  kojihub_auth_type == 'ssl' %}
+cert = {{ kojihub_ssl_cert }}
+serverca = {{ kojihub_ssl_ca }}
+{% endif %}
+
+use_fast_upload = {{ kojihub_use_fast_upload | bool }}

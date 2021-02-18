@@ -1,0 +1,23 @@
+- name: Install base system packages
+  yum:
+    name:
+      - '@Development Tools'
+      - python2
+      - python2-devel
+      - python36
+      - python36-devel
+      - python36-rpm-macros
+      - rpm-build
+      - libselinux-devel
+      - libsemanage
+      - python3-libsemanage
+      - mod_ssl
+    state: present
+  become: true
+
+- name: Add MBS yum repository
+  template:
+    src: mbs/mbs.repo.j2
+    dest: /etc/yum.repos.d/{{ mbs_custom_repo_name }}.repo
+  become: true
+  when: mbs_custom_repo
