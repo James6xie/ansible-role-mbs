@@ -1,22 +1,4 @@
 ---
-- name: Install mbs-frontend packages
-  yum:
-    name:
-      - httpd
-    state: present
-  become: true
-
-- name: Copy mbs httpd config
-  file:
-    path: /httpdir
-    state: directory
-    owner: apache
-    group: apache
-    mode: 0644
-  become: true
-  notify:
-    - Restart apache
-
 - name: Copy mbs httpd config
   template:
     src: mbs/mbs.conf.j2

@@ -6,6 +6,22 @@
      mbs_config_messaging: 'in_memory'
   tasks:
     # prepare
+    - name: Install httpd
+      yum:
+        name:
+          - httpd
+        state: present
+      become: true
+
+    - name: Create httpd dir
+      file:
+        path: /httpdir
+        state: directory
+        owner: apache
+        group: apache
+        mode: 0644
+      become: true
+
     - name: Ensure psql data dir exists
       stat:
         path: /var/lib/pgsql/data/PG_VERSION
@@ -22,7 +38,8 @@
         state: present
       become: true
 
-    - shell: postgresql-setup --initdb
+    - name: setups psql data dir
+      shell: postgresql-setup --initdb
       become: true
       when: not output.stat.exists
 
@@ -33,7 +50,8 @@
         executable: /usr/bin/pip3.6
       become: true
 
-    - copy:
+    - name: Copy psql dev config file
+      copy:
         src: "{{ psql_hba_conf_file }}"
         dest: /var/lib/pgsql/data/pg_hba.conf
       become: true
@@ -45,7 +63,7 @@
         enabled: true
       become: true
 
-    - name: Create a new database with name "acme"
+    - name: Create a new database
       become: yes
       become_method: sudo
       become_user: postgres

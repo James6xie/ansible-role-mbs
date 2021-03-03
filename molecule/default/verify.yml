@@ -13,11 +13,6 @@
         path: /etc/module-build-service/config.py
       register: mbs_config_stat
 
-    - name: httpd service assert
-      assert:
-        that:
-          - ansible_facts.services['httpd.service']['state'] == 'running'
-
     - name: fedmsg-hub service assert
       assert:
         that:
