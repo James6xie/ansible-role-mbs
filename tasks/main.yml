@@ -1,7 +1,9 @@
----
-# - debug: var=out.stdout
-# tasks file for mbs
+--- 
+# base system setup
 - include_tasks: system.yml
+# fedmsg setup
 - include_tasks: fedmsg-hub.yml
+# msb-backend setup
 - include_tasks: mbs-backend.yml
+# msb-frontend setup
 - include_tasks: mbs-frontend.yml

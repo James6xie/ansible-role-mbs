@@ -31,5 +31,6 @@ provisioner:
         mbs_mq_key: ${MOLECULE_PROJECT_DIRECTORY}/molecule/files/key.pem
         mbs_mq_ca: ${MOLECULE_PROJECT_DIRECTORY}/molecule/files/ca.pem
         mbs_default_modules_dir: ${MOLECULE_PROJECT_DIRECTORY}/molecule/files/default-modules
+        yum_buildtools_repo: ${MOLECULE_PROJECT_DIRECTORY}/molecule/files/buildtools.repo
 verifier:
   name: ansible

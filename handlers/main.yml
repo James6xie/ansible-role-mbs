@@ -1,4 +1,9 @@
 ---
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+  become: true
+
 - name: Restart apache
   service:
     name: httpd
@@ -12,22 +17,10 @@
     state: reloaded
   become: true
 
-- name: Restart apache
-  service:
-    name: httpd
-    state: restarted
-    enabled: true
-  become: true
-
 - name: Restart fedmsg-hub
   service:
     name: fedmsg-hub
     state: restarted
-  become: true
-
-- name: Reload systemd
-  systemd:
-    daemon_reload: yes
   become: true
 
 - name: Restart mbs poller

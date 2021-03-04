@@ -18,6 +18,8 @@ class BaseConfiguration(object):
     HOST = '0.0.0.0'
     PORT = 5000
 
+    CELERY_BROKER_URL = '{{ mbs_config_broker_url }}'
+
     # Global network-related values, in seconds
     NET_TIMEOUT = 120
     NET_RETRY_INTERVAL = 30
@@ -31,9 +33,6 @@ class BaseConfiguration(object):
     KOJI_PROXYUSER = {{ mbs_config_koji_proxy_user | bool }}
     KOJI_REPOSITORY_URL = '{{ mbs_config_koji_repository_url }}'
     COPR_CONFIG = '{{ mbs_config_copr_file }}'
-    PDC_URL = '{{ mbs_config_pdc_url }}'
-    PDC_INSECURE = {{ mbs_config_pdc_insure | bool }}
-    PDC_DEVELOP = {{ mbs_config_pdc_develop | bool }}
     SCMURLS = {{ mbs_config_scm_urls }}
 
     # How often should we resort to polling, in seconds
@@ -114,10 +113,6 @@ class ProdConfiguration(BaseConfiguration):
     # Delete module-* targets one hour after build
     KOJI_TARGET_DELETE_TIME = {{ mbs_config_koji_delete_time }}
 
-    # These aren't really secret.
-    OIDC_CLIENT_SECRETS = path.join(confdir, 'client_secrets.json')
-    OIDC_REQUIRED_SCOPE = 'https://mbs.fedoraproject.org/oidc/submit-build'
-
     # yes, we want everyone to authenticate
     NO_AUTH = {{ mbs_config_no_auth | bool }}  # Obviously.
 
@@ -132,7 +127,6 @@ class ProdConfiguration(BaseConfiguration):
     # Because of https://lists.fedoraproject.org/archives/list/devel@lists.fedoraproject.org/thread/KGXBMTUR72FHQEG7IBHDPPX276QHSD2I/#MFT5SAWPKMCNLKAWEJFCFIVX5GJ7RBSP
     # we decided to hold on to this and ask the maintainers to create a
     # releng ticket to retire their modules.
-    CHECK_FOR_EOL = {{ mbs_config_eol_check | bool }} 
 
     # Koji Content Generator "-devel" modules aren't used in Fedora, so we can just disable them
     KOJI_CG_DEVEL_MODULE = {{ mbs_config_koji_devel_module | bool }}

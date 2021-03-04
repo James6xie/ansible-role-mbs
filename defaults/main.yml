@@ -10,11 +10,6 @@ mbs_mq_cert: 'cert.pem'
 mbs_mq_key: 'key.pem'
 mbs_mq_ca: 'ca.pem'
 mbs_default_modules_dir: default-modules
-# pdc client
-mbs_pdc_client_name: centos
-mbs_pdc_client_url: https://pdc.fedoraproject.org/rest_api/v1/
-mbs_pdc_client_develop: true
-mbs_pdc_client_insecure: false
 # repository config
 mbs_custom_repo: true
 mbs_custom_repo_name: mbs
@@ -26,21 +21,14 @@ kojihub_top_url: https://cbs.centos.org
 kojihub_use_fast_upload: true
 kojihub_auth_type: kerberos
 kojihub_kerberos_rdns: false
-# oidc
-mbs_oidc_uri: https://id.centos.org/openidc/Authorization
-mbs_oidc_client_id: mbs-prod
-mbs_oidc_client_secret: ""
-mbs_oidc_redirect_uris: []
-mbs_oidc_token_uri: https://id.centos.org/openidc/Token
-mbs_oidc_token_introspection_uri: https://id.centos.org/openidc/TokenInfo
-mbs_oidc_userinfo_uri: https://id.centos.org/openidc/UserInfo
 #mbs config.py
+mbs_config_broker_url: ''
 mbs_config_debug: false
 mbs_config_env: "{{ mbs_config_type }}"
 mbs_config_secret_key: a1b2c3d4
 mbs_config_database_url: postgresql://mbs:mbs@localhost/mbs
 mbs_config_system: koji
-mbs_config_messaging: fedmsg
+mbs_config_messaging: in_memory
 mbs_config_messaging_topic_prefix: 'org.centos.mbs'
 mbs_config_koji_file: /etc/module-build-service/koji.conf
 mbs_config_koji_profile: koji
@@ -51,9 +39,6 @@ mbs_config_arches:
 mbs_config_koji_proxy_user: true
 mbs_config_koji_repository_url: https://kojipkgs.stg.fedoraproject.org/repos
 mbs_config_copr_file: /etc/module-build-service/copr.conf
-mbs_config_pdc_url: http://modularity.fedorainfracloud.org:8080/rest_api/v1
-mbs_config_pdc_insure: true
-mbs_config_pdc_develop: true
 mbs_config_scm_urls:
   - git+https://src.fedoraproject.org/modules/
 mbs_config_polling_interval: 3600
@@ -110,7 +95,6 @@ mbs_config_koji_delete_time: 3600
 mbs_config_no_auth: false
 mbs_config_yaml_allowed: false
 mbs_config_build_priority: 0
-mbs_config_eol_check: false
 mbs_config_koji_devel_module: false
 mbs_config_modules_allow_scratch: true
 mbs_config_modules_only_compatible: false

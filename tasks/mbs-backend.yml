@@ -12,9 +12,6 @@
       - python3-pungi >= 4.2.3
     state: present
     update_cache: true
-    enablerepo: "{{ mbs_custom_repo_name }}"
-    disable_gpg_check: "{{ mbs_custom_repo_gpg_check }}"
-  become: true
   notify:
     - Restart apache
     - Restart fedmsg-hub
@@ -26,7 +23,6 @@
   with_items:
     - module_build_service.py
     - mbs-logging.py
-  become: true
   notify:
     - Restart apache
     - Restart fedmsg-hub
@@ -36,7 +32,6 @@
     path: "{{ mbs_config_log_file | dirname }}"
     mode: 0777
     state: directory
-  become: true
   when: mbs_config_log_backend == 'file'
 
 - name: copy app configuration
@@ -46,7 +41,6 @@
     owner: root
     group: fedmsg
     mode: 0644
-  become: true
   notify:
     - Restart apache
     - Restart fedmsg-hub
@@ -58,7 +52,6 @@
     owner: root
     group: fedmsg
     mode: 0644
-  become: true
   notify:
     - Restart fedmsg-hub
 
@@ -69,7 +62,6 @@
     owner: root
     group: fedmsg
     mode: 0644
-  become: true
   notify:
     - Restart apache
     - Restart fedmsg-hub
@@ -81,28 +73,25 @@
     owner: fedmsg
     group: fedmsg
     mode: 0750
-  become: true
-
-- name: create /etc/pdc.d directory
-  file:
-    path: /etc/pdc.d
-    state: directory
-    owner: root
-    group: root
-    mode: 0775
-  become: true
-
-- name: copy pdc client config file
-  template:
-    src: mbs/pdc-client.json.j2
-    dest: /etc/pdc.d/{{ mbs_pdc_client_name }}.json
-    owner: root
-    group: root
-    mode: 0644
-  become: true
-  notify:
-    - Restart apache
-    - Restart fedmsg-hub
+  
+# - name: create /etc/pdc.d directory
+#   file:
+#     path: /etc/pdc.d
+#     state: directory
+#     owner: root
+#     group: root
+#     mode: 0775
+#   
+# - name: copy pdc client config file
+#   template:
+#     src: mbs/pdc-client.json.j2
+#     dest: /etc/pdc.d/{{ mbs_pdc_client_name }}.json
+#     owner: root
+#     group: root
+#     mode: 0644
+#   #   notify:
+#     - Restart apache
+#     - Restart fedmsg-hub
 
 - name: copy the MBS rabbitmq private queue crt
   copy:
@@ -111,8 +100,7 @@
     owner: root
     group: fedmsg
     mode: 0640
-  become: true
-
+  
 - name: copy the MBS rabbitmq private queue key
   copy:
     src: "{{ mbs_mq_key }}"
@@ -120,8 +108,7 @@
     owner: root
     group: fedmsg
     mode: 0640
-  become: true
-
+  
 - name: copy the MBS rabbitmq CA cert
   copy:
     src: "{{ mbs_mq_ca }}"
@@ -129,9 +116,7 @@
     owner: root
     group: fedmsg
     mode: 0640
-  become: true
-
-
+  
 - name: Add the systemd service files
   template:
     src: "{{ item.src }}"
@@ -144,7 +129,6 @@
       dest: /etc/systemd/system/mbs-worker@.service
     - src: mbs/mbs-poller.service.j2
       dest: /etc/systemd/system/mbs-poller.service
-  become: true
   notify:
     - Restart mbs poller
     - Restart mbs workers
@@ -156,15 +140,13 @@
     enabled: yes
     state: started
   with_sequence: start=0 end={{ mbs_num_workers - 1 }}
-  become: true
-
+  
 - name: Start and enable mbs-poller service
   systemd:
     name: mbs-poller
     enabled: yes
     state: started
-  become: true
-
+  
 - name: Populate the service facts to detect if there are MBS workers to disable
   service_facts: {}
 
@@ -177,8 +159,7 @@
   vars:
     worker_num: "{{ item | regex_search('\\d+') }}"
   when: (worker_num | int) >= mbs_num_workers
-  become: true
-
+  
 - name: create /etc/module-build-service/default-modules directory
   file:
     path: /etc/module-build-service/default-modules
@@ -186,24 +167,21 @@
     owner: root
     group: root
     mode: 0775
-  become: true
-
+  
 - name: copy default modules to /etc/module-build-service/default-modules
   copy:
       src: "{{ item }}"
       dest: /etc/module-build-service/default-modules
   with_fileglob:
     - "{{ mbs_default_modules_dir }}/*.yaml"
-  become: true
-
+  
 - name: Upgrade database
   command: /usr/bin/mbs-manager db upgrade
   when: mbs_upgrade_db
   register: mbs_db_output
   changed_when: "'Running upgrade' in mbs_db_output.stdout"
   failed_when: mbs_db_output.rc != 0
-  become: true
-
+  
 - name: Get files on remote machine
   find:
     paths: /etc/module-build-service/default-modules/*.yaml
@@ -212,5 +190,4 @@
 - name: import default-modules
   shell: /usr/bin/mbs-manager import_module {{ item }}
   with_items: "{{ mbs_module_list.files }}"
-  become: true
   when: mbs_import_default_modules

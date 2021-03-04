@@ -7,28 +7,24 @@
     update_cache: true
     enablerepo: "{{ mbs_custom_repo_name }}"
     disable_gpg_check: "{{ mbs_custom_repo_gpg_check }}"
-  become: true
-
+  
 - name: Python3 workaround
   pip:
     name:
       - pygments
     executable: /usr/bin/pip3.6
-  become: true
-
+  
 - name: Ensure group "fedmsg" exists
   group:
     name: fedmsg
     state: present
-  become: true
-
+  
 - name: Ensure user "fedmsg" exists
   user:
     name: fedmsg
     comment: fedmsg
     group: fedmsg
-  become: true
-
+  
 - name: Ensure /etc/fedmsg.d/ folder exists
   file:
     path: /etc/fedmsg.d/
@@ -36,8 +32,7 @@
     owner: root
     group: fedmsg
     mode: 0755
-  become: true
-
+  
 - name: setup basic /etc/fedmsg.d/ contents for internal hosts
   template:
     src: "fedmsg/base/{{ item }}.j2"
@@ -52,7 +47,6 @@
     - relay.py
     - logging.py
     - base.py
-  become: true
   notify:
     - Reload apache
     - Restart fedmsg-hub
@@ -62,7 +56,6 @@
     src: fedmsg/websockets.py.j2
     dest: /etc/fedmsg.d/websockets.py
   when: fedmsg_enable_websocket_server
-  become: true
   notify:
     - Restart fedmsg-hub
   
@@ -81,19 +74,16 @@
     owner: fedmsg
     group: fedmsg
     state: directory
-  become: true
-
+  
 - name: Check if /var/run/fedmsg/monitoring-fedmsg-hub.socket file exists
   stat:
     path: /var/run/fedmsg/monitoring-fedmsg-hub.socket
-  become: true
   register: output
   
 - name: Create systemd config directory
   file:
     path: /etc/systemd/system/fedmsg-hub.service.d
     state: directory
-  become: true
   notify:
     - Reload systemd
 
@@ -101,7 +91,6 @@
   template:
     src: fedmsg/fedmsg-hub-systemd.conf.j2
     dest: /etc/systemd/system/fedmsg-hub.service.d/systemd.conf
-  become: true
   notify:
     - Reload systemd
     - Restart fedmsg-hub
@@ -110,12 +99,11 @@
   template:
     src: fedmsg/fedmsg-hub.service.j2
     dest: /usr/lib/systemd/system/fedmsg-hub.service
-  become: true
-
+  
 - name: Fedmsg-hub service
   systemd:
     name: fedmsg-hub
     state: started
     enabled: yes
     daemon_reload: yes
-  become: true
+  

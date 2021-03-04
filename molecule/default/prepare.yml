@@ -1,0 +1,88 @@
+---
+- name: Prepare
+  hosts: all
+  become: true
+  become_user: root
+  tasks:
+    # prepare
+    - name: Install httpd
+      yum:
+        name:
+          - httpd
+        state: present
+
+    - name: Create httpd dir
+      file:
+        path: /httpdir
+        state: directory
+        owner: apache
+        group: apache
+        mode: 0644
+
+    - name: Ensure psql data dir exists
+      stat:
+        path: /var/lib/pgsql/data/PG_VERSION
+      register: output
+
+    - name: Install postgresql
+      yum:
+        name:
+          - postgresql-server
+          - postgresql-server-devel
+          - postgresql
+          - python36
+          - python36-devel
+        state: present
+
+    - name: setups psql data dir
+      shell: postgresql-setup --initdb
+      when: not output.stat.exists
+
+    - name:
+      pip:
+        name: 
+          - psycopg2-binary
+        executable: /usr/bin/pip3.6
+
+    - name: Copy psql dev config file
+      copy:
+        src: "{{ psql_hba_conf_file }}"
+        dest: /var/lib/pgsql/data/pg_hba.conf
+
+    - name: Start postgresql
+      service:
+        name: postgresql
+        state: started
+        enabled: true
+
+    - name: Create a new database
+      become_method: sudo
+      become_user: postgres
+      community.general.postgresql_db:
+        name: mbs
+        encoding: 'UTF-8'
+        lc_collate: 'en_US.UTF-8'
+        lc_ctype: 'en_US.UTF-8'
+        state: present
+
+    - name: Postgres reset database user
+      become_method: sudo
+      become_user: postgres
+      postgresql_user:
+        db: mbs
+        name: mbs
+        password: mbs
+        priv: ALL
+        state: present
+
+    - name: Set db owner
+      become_method: sudo
+      become_user: postgres
+      community.general.postgresql_owner:
+        db: mbs
+        new_owner: mbs
+
+    - name: Add buildtools yum repository
+      template:
+        src: "{{ yum_buildtools_repo }}"
+        dest: /etc/yum.repos.d/buildtools.repo

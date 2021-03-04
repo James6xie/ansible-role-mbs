@@ -6,7 +6,6 @@
     owner: apache
     group: apache
     mode: 0644
-  become: true
   notify:
     - Restart apache
 
@@ -17,7 +16,6 @@
     owner: fedmsg
     group: fedmsg
     mode: 0644
-  become: true
   notify:
     - Restart apache
 
@@ -26,21 +24,18 @@
     name: fedmsg-hub-3
     state: stopped
     enabled: false
-  become: true
   failed_when: false
 
 - name: Ensure /usr/share/mbs folder exists
   file:
     path: /usr/share/mbs/
     state: directory
-  become: true
-
+  
 - name: Copy custom wsgi file
   template:
     src: mbs/mbs.wsgi.j2
     dest: /usr/share/mbs/mbs.wsgi
     mode: 0644
-  become: true
   notify:
     - Restart apache
 
@@ -54,11 +49,9 @@
     - httpd_can_network_memcache
     - httpd_can_network_connect
     - httpd_can_sendmail
-  become: true
-
+  
 - name: Make httpd logs world readable
   file:
     name: /var/log/httpd
     state: directory
     mode: 0755
-  become: true
