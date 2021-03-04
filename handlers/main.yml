@@ -21,6 +21,7 @@
   service:
     name: fedmsg-hub
     state: restarted
+    enabled: true
   become: true
 
 - name: Restart mbs poller

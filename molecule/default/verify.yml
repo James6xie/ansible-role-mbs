@@ -1,6 +1,5 @@
 ---
 # This is an example playbook to execute Ansible tests.
-
 - name: Verify
   hosts: all
   gather_facts: false
@@ -39,6 +38,19 @@
 
     - name: mbs service assert
       uri:
-        url: http://localhost:80/module-build-service/1/module-builds/
+        url: http://localhost/module-build-service/1/module-builds/
         method: GET
         status_code: 200
+
+    - set_fact:
+        post_body:
+          scmurl: https://src.fedoraproject.org/modules/foo
+          branch: master
+    - name: mbs service post auth failed assert
+      uri:
+        url: http://localhost/module-build-service/1/module-builds/
+        body: "{{ post_body | to_json }}"
+        headers:
+          Content-Type: "application/json"
+        method: POST
+        status_code: 403

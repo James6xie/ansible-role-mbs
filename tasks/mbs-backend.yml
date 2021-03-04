@@ -8,7 +8,6 @@
       - python3-stevedore
       - python3-psutil
       - python3-vine < 5.0.0
-      - python3-mod_wsgi
       - python3-pungi >= 4.2.3
     state: present
     update_cache: true
@@ -73,25 +72,6 @@
     owner: fedmsg
     group: fedmsg
     mode: 0750
-  
-# - name: create /etc/pdc.d directory
-#   file:
-#     path: /etc/pdc.d
-#     state: directory
-#     owner: root
-#     group: root
-#     mode: 0775
-#   
-# - name: copy pdc client config file
-#   template:
-#     src: mbs/pdc-client.json.j2
-#     dest: /etc/pdc.d/{{ mbs_pdc_client_name }}.json
-#     owner: root
-#     group: root
-#     mode: 0644
-#   #   notify:
-#     - Restart apache
-#     - Restart fedmsg-hub
 
 - name: copy the MBS rabbitmq private queue crt
   copy:

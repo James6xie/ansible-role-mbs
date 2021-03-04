@@ -10,12 +10,6 @@ mbs_mq_cert: 'cert.pem'
 mbs_mq_key: 'key.pem'
 mbs_mq_ca: 'ca.pem'
 mbs_default_modules_dir: default-modules
-# repository config
-mbs_custom_repo: true
-mbs_custom_repo_name: mbs
-mbs_custom_repo_url: http://buildlogs.centos.org/centos/8/infra/x86_64/buildtools-common/
-mbs_custom_repo_gpg_key: ''
-mbs_custom_repo_gpg_check: false
 # kojihub
 kojihub_top_url: https://cbs.centos.org
 kojihub_use_fast_upload: true
@@ -33,8 +27,6 @@ mbs_config_messaging_topic_prefix: 'org.centos.mbs'
 mbs_config_koji_file: /etc/module-build-service/koji.conf
 mbs_config_koji_profile: koji
 mbs_config_arches:
-  - i686
-  - armv7hl
   - x86_64
 mbs_config_koji_proxy_user: true
 mbs_config_koji_repository_url: https://kojipkgs.stg.fedoraproject.org/repos

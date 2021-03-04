@@ -4,16 +4,13 @@
     name:
       - python3-fedmsg
     state: present
-    update_cache: true
-    enablerepo: "{{ mbs_custom_repo_name }}"
-    disable_gpg_check: "{{ mbs_custom_repo_gpg_check }}"
   
 - name: Python3 workaround
   pip:
     name:
       - pygments
     executable: /usr/bin/pip3.6
-  
+
 - name: Ensure group "fedmsg" exists
   group:
     name: fedmsg
