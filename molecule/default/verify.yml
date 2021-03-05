@@ -12,11 +12,6 @@
         path: /etc/module-build-service/config.py
       register: mbs_config_stat
 
-    - name: fedmsg-hub service assert
-      assert:
-        that:
-          - ansible_facts.services['fedmsg-hub.service']['state'] == 'running'
-
     - name: mbs workers service assert
       assert:
         that:
@@ -46,6 +41,7 @@
         post_body:
           scmurl: https://src.fedoraproject.org/modules/foo
           branch: master
+
     - name: mbs service post auth failed assert
       uri:
         url: http://localhost/module-build-service/1/module-builds/
