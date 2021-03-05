@@ -1,0 +1,12 @@
+- name: Install base system packages
+  yum:
+    name:
+      - python36
+      - python36-devel
+      - python36-rpm-macros
+      - rpm-build
+      - libselinux-devel
+      - libsemanage
+      - python3-libsemanage
+      - mod_ssl
+    state: present

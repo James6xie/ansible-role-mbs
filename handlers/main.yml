@@ -1,2 +1,40 @@
 ---
-# handlers file for mbs
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+  become: true
+
+- name: Restart apache
+  service:
+    name: httpd
+    state: restarted
+    enabled: true
+  become: true
+
+- name: Reload apache
+  service:
+    name: httpd
+    state: reloaded
+  become: true
+
+- name: Restart fedmsg-hub
+  service:
+    name: fedmsg-hub
+    state: restarted
+    enabled: true
+  become: true
+
+- name: Restart mbs poller
+  service:
+    name: mbs-poller
+    state: restarted
+    enabled: true
+  become: true
+
+- name: Restart mbs workers
+  service:
+    name: "mbs-worker@{{ item }}"
+    state: restarted
+    enabled: true
+  with_sequence: start=0 end={{ mbs_num_workers - 1 }}
+  become: true

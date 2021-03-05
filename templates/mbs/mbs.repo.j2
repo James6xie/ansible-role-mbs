@@ -1,0 +1,12 @@
+[{{ mbs_custom_repo_name }}]
+name={{ mbs_custom_repo_name }}
+baseurl={{ mbs_custom_repo_url }}
+enabled=1
+{% if mbs_custom_repo_gpg_key %}
+gpgkey={{ mbs_custom_repo_gpg_key }}
+{% endif %}
+{% if mbs_custom_repo_gpg_check | bool %}
+gpgcheck=1
+{% else %}
+gpgcheck=0
+{% endif %}

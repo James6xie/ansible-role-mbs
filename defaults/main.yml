@@ -1,2 +1,103 @@
 ---
 # defaults file for mbs
+mbs_cert_prefix: mbs
+mbs_config_type: production
+mbs_import_default_modules: true
+mbs_upgrade_db: true
+mbs_num_workers: 3
+mbs_celery_max_worker_tasks: 10
+mbs_mq_cert: 'cert.pem'
+mbs_mq_key: 'key.pem'
+mbs_mq_ca: 'ca.pem'
+mbs_default_modules_dir: default-modules
+# kojihub
+kojihub_top_url: https://cbs.centos.org
+kojihub_use_fast_upload: true
+kojihub_auth_type: kerberos
+kojihub_kerberos_rdns: false
+#mbs config.py
+mbs_config_broker_url: ''
+mbs_config_debug: false
+mbs_config_env: "{{ mbs_config_type }}"
+mbs_config_secret_key: a1b2c3d4
+mbs_config_database_url: postgresql://mbs:mbs@localhost/mbs
+mbs_config_system: koji
+mbs_config_messaging: in_memory
+mbs_config_messaging_topic_prefix: 'org.centos.mbs'
+mbs_config_koji_file: /etc/module-build-service/koji.conf
+mbs_config_koji_profile: koji
+mbs_config_arches:
+  - x86_64
+mbs_config_koji_proxy_user: true
+mbs_config_koji_repository_url: https://kojipkgs.stg.fedoraproject.org/repos
+mbs_config_copr_file: /etc/module-build-service/copr.conf
+mbs_config_scm_urls:
+  - git+https://src.fedoraproject.org/modules/
+mbs_config_polling_interval: 3600
+mbs_config_default_repository_url: 'git+https://src.fedoraproject.org/rpms/'
+mbs_config_allow_rpm_repository: false
+mbs_config_rpm_default_cache_url: 'https://src.fedoraproject.org/repo/pkgs/'
+mbs_config_rpm_allow_cache: false
+mbs_config_modules_repository_url: 'git+https://src.fedoraproject.org/modules/'
+mbs_config_modules_allow_repository: false
+mbs_config_log_backend: file
+mbs_config_log_file: /var/log/mbs/module_build_service.log
+mbs_config_log_level: info
+mbs_config_logs_build_dir: /var/tmp
+mbs_config_krb_keytab: /etc/krb5.mbs_mbs{{ mbs_config_env }}.centos.org.keytab
+mbs_config_krb_principal: mbs/mbs.centos.org@CENTOS.ORG
+mbs_config_krb_cache: /var/cache/fedmsg/mbs-krb5cc
+mbs_config_amq_recv_addreses:
+  - amqps://messaging.mydomain.com/Consumer.m8y.VirtualTopic.eng.koji
+  - amqps://messaging.mydomain.com/Consumer.m8y.VirtualTopic.eng.module_build_service
+mbs_config_amq_dest_address: amqps://messaging.mydomain.com/Consumer.m8y.VirtualTopic.eng.module_build_service
+mbs_config_amq_cert_file: /etc/module_build_service/msg-m8y-client.crt
+mbs_config_amq_key_file: /etc/module_build_service/msg-m8y-client.key
+mbs_config_amq_ca_file: /etc/module_build_service/Root-CA.crt
+mbs_config_allowed_groups:
+  - packager
+mbs_config_admin_groups:
+  - factory2
+  - releng-team
+mbs_config_rebuild_strategy: only-changed
+mbs_config_rebuild_strategy_override: true
+mbs_config_base_module_arches:
+  platform:el8:
+    - aarch64
+    - ppc64le
+    - x86_64
+    - s390x
+mbs_config_resolver: db
+mbs_config_content_generator: true
+mbs_config_base_module_names:
+  - platform
+  - bootstrap
+mbs_config_koji_build_tag: modular-updates-candidate
+mbs_config_koji_tag_prefixes:
+  - module
+  - f26-modularity
+  - scrmod
+mbs_config_koji_tag_extra_opts:
+  mock.package_manager: dnf
+  repo_include_all: true
+  mock.new_chroot: 0
+  mock.yum.module_hotfixes: 1
+mbs_config_dist_tag_prefix: module_
+mbs_config_koji_delete_time: 3600
+mbs_config_no_auth: false
+mbs_config_yaml_allowed: false
+mbs_config_build_priority: 0
+mbs_config_koji_devel_module: false
+mbs_config_modules_allow_scratch: true
+mbs_config_modules_only_compatible: false
+# frontend
+mbs_wsgi_procs: 1
+mbs_wsgi_threads: 1
+mbs_wsgi_log_level: DEBUG
+mbs_scheduler_consumer: false
+mbs_scheduler_poller: false
+mbs_frontend_host: localhost
+mbs_frontend_https_enabled: false
+mbs_frontend_https_port: 443
+mbs_frontend_http_enabled: true
+mbs_frontend_http_port: 80

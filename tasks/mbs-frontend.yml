@@ -1,0 +1,45 @@
+---
+- name: Install mbs-frontend packages
+  yum:
+    name:
+      - python3-mod_wsgi
+
+- name: Copy mbs httpd config
+  template:
+    src: mbs/mbs.conf.j2
+    dest: /etc/httpd/conf.d/mbs.conf
+    owner: apache
+    group: apache
+    mode: 0644
+  notify:
+    - Restart apache
+
+- name: Ensure /usr/share/mbs folder exists
+  file:
+    path: /usr/share/mbs/
+    state: directory
+  
+- name: Copy custom wsgi file
+  template:
+    src: mbs/mbs.wsgi.j2
+    dest: /usr/share/mbs/mbs.wsgi
+    mode: 0644
+  notify:
+    - Restart apache
+
+- name: Ensure selinux lets httpd talk to postgres, memcached, and mail
+  seboolean:
+    name: "{{ item }}"
+    state: true
+    persistent: true
+  with_items:
+    - httpd_can_network_connect_db
+    - httpd_can_network_memcache
+    - httpd_can_network_connect
+    - httpd_can_sendmail
+  
+- name: Make httpd logs world readable
+  file:
+    name: /var/log/httpd
+    state: directory
+    mode: 0755
