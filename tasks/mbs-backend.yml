@@ -79,6 +79,7 @@
     owner: root
     group: fedmsg
     mode: 0640
+  when: mbs_mq_cert
   
 - name: copy the MBS rabbitmq private queue key
   copy:
@@ -87,6 +88,7 @@
     owner: root
     group: fedmsg
     mode: 0640
+  when: mbs_mq_key
   
 - name: copy the MBS rabbitmq CA cert
   copy:
@@ -95,6 +97,7 @@
     owner: root
     group: fedmsg
     mode: 0640
+  when: mbs_mq_ca
   
 - name: Add the systemd service files
   template:

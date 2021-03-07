@@ -6,17 +6,22 @@ mbs_import_default_modules: true
 mbs_upgrade_db: true
 mbs_num_workers: 3
 mbs_celery_max_worker_tasks: 10
-mbs_mq_cert: 'cert.pem'
-mbs_mq_key: 'key.pem'
-mbs_mq_ca: 'ca.pem'
+mbs_mq_cert: ''
+mbs_mq_key: ''
+mbs_mq_ca: ''
 mbs_default_modules_dir: default-modules
+# rabbitmq
+rabbitmq_local: true
+rabbitmq_vhost: mbs
+rabbitmq_username: mbs
+rabbitmq_password: mbs
 # kojihub
 kojihub_top_url: https://cbs.centos.org
 kojihub_use_fast_upload: true
 kojihub_auth_type: kerberos
 kojihub_kerberos_rdns: false
 #mbs config.py
-mbs_config_broker_url: ''
+mbs_config_broker_url: 'amqp://{{ rabbitmq_username }}@{{ rabbitmq_password }}:localhost:5627/{{ rabbitmq_vhost }}'
 mbs_config_debug: false
 mbs_config_env: "{{ mbs_config_type }}"
 mbs_config_secret_key: a1b2c3d4

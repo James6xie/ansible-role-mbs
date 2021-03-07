@@ -1,6 +1,9 @@
 --- 
 # base system setup
 - include_tasks: system.yml
+# rabbitmq
+- include_tasks: rabbitmq.yml
+  when: rabbitmq_local
 # msb-backend setup
 - include_tasks: mbs-backend.yml
 # msb-frontend setup
