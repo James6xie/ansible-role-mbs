@@ -5,9 +5,9 @@
       - module-build-service
       - python3-stevedore
       - python3-psycopg2
-      # - python3-psutil
       - python3-vine < 5.0.0
       - python3-pungi >= 4.2.3
+      - python3-qpid-proton
     state: present
     update_cache: true
   notify:
@@ -150,26 +150,23 @@
     group: root
     mode: 0775
   
-- name: copy default modules to /etc/module-build-service/default-modules
-  copy:
-      src: "{{ item }}"
-      dest: /etc/module-build-service/default-modules
-  with_fileglob:
-    - "{{ mbs_default_modules_dir }}/*.yaml"
-  
 - name: Upgrade database
   command: /usr/bin/mbs-manager db upgrade
   when: mbs_upgrade_db
   register: mbs_db_output
   changed_when: "'Running upgrade' in mbs_db_output.stdout"
   failed_when: mbs_db_output.rc != 0
-  
-- name: Get files on remote machine
-  find:
-    paths: /etc/module-build-service/default-modules/*.yaml
-  register: mbs_module_list
 
-- name: import default-modules
-  shell: /usr/bin/mbs-manager import_module {{ item }}
-  with_items: "{{ mbs_module_list.files }}"
+- block:
+    - name: Import default modules
+      copy:
+          src: "{{ item }}"
+          dest: /etc/module-build-service/default-modules
+      with_fileglob:
+        - "{{ mbs_default_modules_dir }}/*.yaml"
+    - find:
+        paths: /etc/module-build-service/default-modules/*.yaml
+      register: default_modules
+    - shell: /usr/bin/mbs-manager import_module {{ item }}
+      with_items: "{{ default_modules.files }}"
   when: mbs_import_default_modules
