@@ -25,7 +25,7 @@ class BaseConfiguration(object):
     NET_RETRY_INTERVAL = 30
 
     SYSTEM = '{{ mbs_config_system }}'
-    MESSAGING = '{{ mbs_config_messaging }}'  # or amq
+    MESSAGING = '{{ mbs_config_messaging }}'  # in_memory, fedmsg or amq
     MESSAGING_TOPIC_PREFIX = ['{{ mbs_config_messaging_topic_prefix }}']
     KOJI_CONFIG = '{{ mbs_config_koji_file }}'
     KOJI_PROFILE = '{{ mbs_config_koji_profile }}'
@@ -63,17 +63,22 @@ class BaseConfiguration(object):
     KRB_PRINCIPAL = '{{ mbs_config_krb_principal }}'
     KRB_CCACHE = '{{ mbs_config_krb_cache }}'
 
+{% if mbs_config_messaging == 'amq' %}
     # AMQ prefixed variables are required only while using 'amq' as messaging backend
     # Addresses to listen to
-{% if mbs_config_messaging == 'amq' %}
     AMQ_RECV_ADDRESSES = {{ mbs_config_amq_recv_addreses }}
     # Address for sending messages
     AMQ_DEST_ADDRESS = '{{ mbs_config_amq_dest_address }}'
+{% if mbs_config_amq_cert_file %}
     AMQ_CERT_FILE = '{{ mbs_config_amq_cert_file }}'
+{% endif %}
+{% if mbs_config_amq_key_file %}
     AMQ_PRIVATE_KEY_FILE = '{{ mbs_config_amq_key_file }}'
+{% endif %}
+{% if mbs_config_amq_ca_file %}
     AMQ_TRUSTED_CERT_FILE = '{{ mbs_config_amq_ca_file }}'
 {% endif %}
-
+{% endif %}
 
 class ProdConfiguration(BaseConfiguration):
     # These groups are allowed to submit builds.

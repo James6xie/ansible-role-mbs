@@ -10,6 +10,7 @@ mbs_mq_cert: ''
 mbs_mq_key: ''
 mbs_mq_ca: ''
 mbs_default_modules_dir: default-modules
+mbs_stomp_uri: ''
 # rabbitmq
 rabbitmq_local: true
 rabbitmq_vhost: mbs
@@ -106,3 +107,4 @@ mbs_frontend_https_enabled: false
 mbs_frontend_https_port: 443
 mbs_frontend_http_enabled: true
 mbs_frontend_http_port: 80
+mbs_frontend_keytab: "{{ mbs_config_krb_keytab }}"
