@@ -17,6 +17,12 @@
   notify:
     - Restart RabbitMQ
 
+- name: Start RabbitMQ
+  service:
+    name: rabbitmq-server
+    state: started
+    enabled: true
+
 - name: Ensure vhost exists
   community.rabbitmq.rabbitmq_vhost:
     name: "{{ rabbitmq_vhost }}"
