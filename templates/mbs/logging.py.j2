@@ -1,0 +1,31 @@
+bare_format = "[%(asctime)s][%(name)10s %(levelname)7s] %(message)s"
+
+config = dict(
+    logging=dict(
+        version=1,
+        formatters=dict(
+            bare={
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+                "format": bare_format
+            },
+        ),
+        handlers=dict(
+            console={
+                "class": "logging.StreamHandler",
+                "formatter": "bare",
+                "level": "{{ mbs_config_log_level|upper }}",
+                "stream": "ext://sys.stdout",
+            },
+        ),
+        loggers=dict(
+            fedmsg={
+                "level": "{{ mbs_config_log_level|upper }}",
+                "propagate": True,
+            },
+            moksha={
+                "level": "{{ mbs_config_log_level|upper }}",
+                "propagate": True,
+            },
+        ),
+    ),
+)

@@ -1,17 +1,7 @@
-import socket
-
-#config = {
-    # So that the MBS can find it's cert in /etc/fedmsg.d/ssl.py
-    # 'cert_prefix': '{{ mbs_cert_prefix }}',
-    # 'name': 'mbs.%s' % socket.gethostname().split('.', 1)[0],
-#}
-
 config = {
-    'zmq_enabled': True,
-    'validate_signatures': False,
-    'endpoints': {},
-    'moksha.blocking_mode': True,
-    # moksha-monitor-exporter's point of contact
-    'moksha.monitoring.socket': 'tcp://0.0.0.0:10030',
+  'zmq_enabled': True,
+  'validate_signatures': False,
+  'moksha.blocking_mode': True,
+  # moksha-monitor-exporter's point of contact
+  'moksha.monitoring.socket': '{{ mbs_moksha_monitoring_addr }}',
 }
-

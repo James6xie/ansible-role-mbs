@@ -55,11 +55,18 @@
 
 - name: copy fedmsg configuration
   template:
-    src: mbs/mbs-fedmsg.py.j2
-    dest: /etc/fedmsg.d/mbs-fedmsg.py
+    src: mbs/{{ item }}.j2
+    dest: /etc/fedmsg.d/{{ item }}
     owner: root
     group: fedmsg
     mode: 0644
+  with_items:
+    - mbs-fedmsg.py
+    - mbs-logging.py
+    - logging.py
+    - mbs-endpoints.py
+    - endpoints.py
+    - relay.py
   notify:
     - Restart apache
     - Restart fedmsg-hub
