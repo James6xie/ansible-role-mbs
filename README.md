@@ -31,14 +31,13 @@ mbs_config_env: "{{ mbs_config_type }}" #
 mbs_config_secret_key: a1b2c3d4 #
 mbs_config_database_url: mbs database url
 mbs_config_system: mbs build system, defaults to "koji"
-mbs_config_messaging: mbs messaging backend type, defaults to "in_memory"
+mbs_config_messaging: mbs messaging backend type, defaults to "fedmsg"
 mbs_config_messaging_topic_prefix: 'org.centos.mbs' #
 mbs_config_koji_file: path to the mbs koji conf file, defaulta to  /etc/module-build-service/koji.conf
 mbs_config_koji_profile: mbs koji profile to use, defaults to "koji"
 mbs_config_arches: a list of supported archs by this mbs instance
 mbs_config_koji_proxy_user: true #
 mbs_config_koji_repository_url: koji repos url
-mbs_config_copr_file: mbs copr conf file, defaults to /etc/module-build-service/copr.conf
 mbs_config_scm_urls: a list of allowed git urls for mbs to pull modules from
 mbs_config_polling_interval: mbs polling interval for mbs-poller
 mbs_config_default_repository_url: mbs defautl rpm repositories url
@@ -58,12 +57,6 @@ mbs_config_allowed_groups: list of allowed groups to build a moduke
 mbs_config_admin_groups: list of admin groups
 mbs_config_rebuild_strategy: mbs rebuild strategy, defaults to only-changed
 mbs_config_rebuild_strategy_override: boolean flag to enable/disable a user to override the rebuild strategy type 
-mbs_config_base_module_arches: a dict of base arches per plataform, example bellow:
-  platform:el8:
-    - aarch64
-    - ppc64le
-    - x86_64
-    - s390x
 mbs_config_base_module_names: a list of base module names
 mbs_config_koji_build_tag: modular-updates-candidate
 mbs_config_koji_tag_prefixes: a list of koji tag prefixes to be used by mbs
