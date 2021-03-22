@@ -1,3 +1,23 @@
+# Default task file for mbs role
+
+- name: Ensuring we have fedmsg
+  include_role:
+    name: fedmsg
+
+- name: Add the buildtools repo if needed
+  template:
+    src: buildtools.repo.j2
+    dest: /etc/yum.repos.d/buildtools.repo
+  tags:
+    - repo
+
+- name: Adding repo gpg key if needed
+  copy: 
+    src: files/RPM-GPG-KEY-CentOS-Infra 
+    dest: /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Infra
+  tags:
+    - repo
+
 - name: Install base system packages
   yum:
     name:
@@ -8,5 +28,4 @@
       - libselinux-devel
       - libsemanage
       - python3-libsemanage
-      - mod_ssl
     state: present

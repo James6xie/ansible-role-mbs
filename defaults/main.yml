@@ -1,5 +1,11 @@
 ---
 # defaults file for mbs
+
+# Do we want to deploy frontend, backend
+mbs_frontend: False
+mbs_backend: False
+
+
 mbs_cert_prefix: mbs
 mbs_import_default_modules: true
 mbs_upgrade_db: true
@@ -7,7 +13,7 @@ mbs_num_workers: 3
 mbs_celery_max_worker_tasks: 10
 mbs_default_modules_dir: default-modules
 # rabbitmq
-rabbitmq_local: true
+rabbitmq_local: True
 rabbitmq_vhost: mbs
 rabbitmq_username: mbs
 rabbitmq_password: mbs
@@ -100,13 +106,16 @@ mbs_wsgi_threads: 1
 mbs_wsgi_log_level: DEBUG
 mbs_scheduler_consumer: false
 mbs_scheduler_poller: false
+
+# httpd hostname for tls cert
 mbs_frontend_host: localhost
 mbs_frontend_https_enabled: false
 mbs_frontend_https_port: 443
 mbs_frontend_http_enabled: true
 mbs_frontend_http_port: 80
 mbs_frontend_auth_type: kerberos
-mbs_frontend_krb_keytab: ''
+# HTTP keytab distributed from pkistore for httpd vhost
+mbs_frontend_krb_keytab: localhost.keytab
 mbs_frontend_krb_host: 'localhost'
 mbs_frontend_ldap_uri: ''
 mbs_frontend_ldap_dn_groups: ''

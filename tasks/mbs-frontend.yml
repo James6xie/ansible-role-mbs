@@ -1,18 +1,48 @@
 ---
+
+- name: Configuring httpd
+  include_role:
+    name: httpd
+
+- include_role:
+    name: httpd
+  vars:
+    - httpd_tls: True
+ 
+- include_role:
+    name: httpd
+    tasks_from: pki-tls
+  vars:
+    pki_hostname: "{{ mbs_frontend_host }}"
+
 - name: Install mbs-frontend packages
   yum:
     name:
       - python3-mod_wsgi
+      - module-build-service
+      - mod_auth_gssapi
+    state: installed
+  notify: restart_httpd 
 
 - name: Copy mbs httpd config
   template:
-    src: mbs/mbs.conf.j2
-    dest: /etc/httpd/conf.d/mbs.conf
+    src: "mbs/{{ item }}.j2"
+    dest: "/etc/httpd/conf.d/{{ item }}"
     owner: apache
     group: apache
     mode: 0644
+  with_items:
+    - mbs.conf
+    - 02_mbs.conf
+    - ssl-mbs.conf
   notify:
     - Restart apache
+
+- name: Ensure we have proper httpd keytab
+  copy:
+    src: "{{ pkistore }}/krb5/{{ mbs_frontend_krb_keytab }}"
+    dest: "/etc/httpd/conf.d/{{ mbs_frontend_krb_keytab }}"
+    owner: apache
 
 - name: Ensure /usr/share/mbs folder exists
   file:
@@ -38,8 +68,3 @@
     - httpd_can_network_connect
     - httpd_can_sendmail
   
-- name: Make httpd logs world readable
-  file:
-    name: /var/log/httpd
-    state: directory
-    mode: 0755

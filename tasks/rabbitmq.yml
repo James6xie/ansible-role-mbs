@@ -24,12 +24,12 @@
     enabled: true
 
 - name: Ensure vhost exists
-  community.rabbitmq.rabbitmq_vhost:
+  rabbitmq_vhost:
     name: "{{ rabbitmq_vhost }}"
     state: present
 
 - name: Ensure user exists and has access to vhost
-  community.rabbitmq.rabbitmq_user:
+  rabbitmq_user:
     user: "{{ rabbitmq_username }}"
     password: "{{ rabbitmq_password }}"
     vhost: "{{ rabbitmq_vhost }}"
