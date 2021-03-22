@@ -1,0 +1,19 @@
+config = dict(
+    logging=dict(
+        loggers=dict(
+            # Quiet this guy down...
+            requests={
+                "level": "WARNING",
+                "propagate": True,
+            },
+            module_build_service={
+                "level": "{{ mbs_config_log_level|upper }}",
+                "propagate": True,
+            },
+        ),
+        root=dict(
+            handlers=["console"],
+            level="{{ mbs_config_log_level|upper }}",
+        ),
+    ),
+)

@@ -32,7 +32,7 @@ TypesConfig /etc/mime.types
 AddDefaultCharset UTF-8
 CoreDumpDirectory /tmp
 
-{% if mbs_frontend_https_enabled %}
+{% if mbs_frontend_https_enabled | bool %}
 Listen 0.0.0.0:{{ mbs_frontend_https_port }} https
 <VirtualHost *:{{ mbs_frontend_https_port }}>
   ServerName "{{ mbs_frontend_host }}"
@@ -41,9 +41,13 @@ Listen 0.0.0.0:{{ mbs_frontend_https_port }} https
   SSLEngine on
   SSLProtocol TLSv1.2
 </VirtualHost>
+
+SSLCertificateFile {{ mbs_frontend_cert_path }}
+SSLCertificateKeyFile {{ mbs_frontend_key_path }}
+SSLCertificateChainFile {{ mbs_frontend_ca_path }}
 {% endif %}
 
-{% if mbs_frontend_http_enabled %}
+{% if mbs_frontend_http_enabled | bool %}
 Listen 0.0.0.0:{{ mbs_frontend_http_port }} http
 <VirtualHost *:{{ mbs_frontend_http_port }}>
   ServerName "{{ mbs_frontend_host }}"
@@ -61,15 +65,26 @@ WSGIPythonOptimize 1
 WSGIScriptAlias / /usr/share/mbs/mbs.wsgi
 
 <Location />
-    WSGIProcessGroup mbs
-    Require all granted
+  WSGIProcessGroup mbs
+{% if mbs_config_no_auth | bool %}
+  Require all granted
+{% else %}
+  # Return JSON when authentication fails
+  ErrorDocument 401 "{\"error\": \"You must be authenticated to perform this action.\"}"
+  Header always set Content-Type "application/json" "expr=%{REQUEST_STATUS} == 401"
+
+  AuthType GSSAPI
+  AuthName "MBS Kerberos negotiate authentication based on GSSAPI"
+  GssapiCredStore keytab:{{ mbs_frontend_krb_keytab }}
+
+  # GET methods are allowed for everyone, but any other method
+  # needs a valid-user.
+  <RequireAny>
+    Require method GET OPTIONS
+    Require valid-user
+  </RequireAny>
+{% endif %}
 </Location>
 
 RewriteEngine on
 RewriteRule ^(|/+)$ /module-build-service/1/module-builds/ [L,R=302]
-
-{% if mbs_frontend_https_enabled %}
-SSLCertificateFile {{ mbs_frontend_cert_path }}
-SSLCertificateKeyFile {{ mbs_frontend_key_path }}
-SSLCertificateChainFile {{ mbs_frontend_ca_path }}
-{% endif %}

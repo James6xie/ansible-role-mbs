@@ -1,0 +1,39 @@
+- name: Install RabbitMQ SIG release package
+  yum:
+    name:
+      - centos-release-rabbitmq-38
+
+- name: Install RabbitMQ server packages
+  yum:
+    name:
+      - SDL2
+      - erlang
+      - rabbitmq-server
+
+- name: Apply rabbitmq config
+  template:
+    src: rabbitmq/rabbitmq.conf.j2
+    dest: /etc/rabbitmq/rabbitmq.conf
+  notify:
+    - Restart RabbitMQ
+
+- name: Start RabbitMQ
+  service:
+    name: rabbitmq-server
+    state: started
+    enabled: true
+
+- name: Ensure vhost exists
+  community.rabbitmq.rabbitmq_vhost:
+    name: "{{ rabbitmq_vhost }}"
+    state: present
+
+- name: Ensure user exists and has access to vhost
+  community.rabbitmq.rabbitmq_user:
+    user: "{{ rabbitmq_username }}"
+    password: "{{ rabbitmq_password }}"
+    vhost: "{{ rabbitmq_vhost }}"
+    configure_priv: .*
+    read_priv: .*
+    write_priv: .*
+    state: present

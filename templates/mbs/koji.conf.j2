@@ -1,4 +1,4 @@
-[{{ mbs_config_type }}]
+[koji]
 server = {{ kojihub_top_url }}/kojihub
 weburl = {{ kojihub_top_url }}/koji
 topurl = {{ kojihub_top_url }}
@@ -6,6 +6,10 @@ topurl = {{ kojihub_top_url }}
 authtype = {{ kojihub_auth_type }}
 {% if  kojihub_auth_type == 'kerberos' %}
 krb_rdns = {{ kojihub_kerberos_rdns | bool }}
+;the principal to auth as for automated clients
+principal = {{ mbs_config_krb_principal }}
+;the keytab to auth as for automated clients
+keytab = {{ mbs_config_krb_keytab }}
 {% endif %}
 {% if  kojihub_auth_type == 'ssl' %}
 cert = {{ kojihub_ssl_cert }}

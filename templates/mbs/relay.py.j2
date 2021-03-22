@@ -1,0 +1,8 @@
+config = dict(
+  endpoints={
+    # This is the output side of the relay to which all other
+    # services can listen.
+    "relay_outbound":{{ mbs_relay_inbound_addrs }}
+  },
+  relay_inbound={{ mbs_relay_outbound_addrs }}
+)
