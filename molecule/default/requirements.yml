@@ -1,0 +1,7 @@
+- src: https://github.com/CentOS/ansible-role-httpd
+  name: httpd
+  version: staging
+
+- src: https://github.com/odra/ansible-role-fedmsg
+  name: fedmsg
+  version: infra-fixes

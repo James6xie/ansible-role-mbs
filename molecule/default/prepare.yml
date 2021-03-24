@@ -5,20 +5,6 @@
   become_user: root
   tasks:
     # prepare
-    - name: Install httpd
-      yum:
-        name:
-          - httpd
-        state: present
-
-    - name: Create httpd dir
-      file:
-        path: /httpdir
-        state: directory
-        owner: apache
-        group: apache
-        mode: 0644
-
     - name: Ensure psql data dir exists
       stat:
         path: /var/lib/pgsql/data/PG_VERSION
@@ -58,7 +44,7 @@
     - name: Create a new database
       become_method: sudo
       become_user: postgres
-      community.general.postgresql_db:
+      postgresql_db:
         name: mbs
         encoding: 'UTF-8'
         lc_collate: 'en_US.UTF-8'
@@ -78,11 +64,6 @@
     - name: Set db owner
       become_method: sudo
       become_user: postgres
-      community.general.postgresql_owner:
+      postgresql_owner:
         db: mbs
         new_owner: mbs
-
-    - name: Add buildtools yum repository
-      template:
-        src: "{{ yum_buildtools_repo }}"
-        dest: /etc/yum.repos.d/buildtools.repo
