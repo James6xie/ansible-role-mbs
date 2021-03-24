@@ -4,6 +4,21 @@
   include_role:
     name: fedmsg
 
+- name: Install postgresql if needed
+  include_role:
+    name: postgresql
+  vars:
+    pgsql_tls: false
+    pgsql_users:
+      - name: "{{ mbs_postgres_username }}"
+        password: "{{ mbs_postgres_password }}"
+        role_attr: "NOCREATEDB,NOSUPERUSER,NOCREATEROLE"
+        db: "{{ mbs_postgres_database }}"
+    pgsql_databases:
+      - name: "{{ mbs_postgres_database }}"
+        owner: "{{ mbs_postgres_username }}"
+  when: mbs_postgres_local | bool
+
 - name: Add the buildtools repo if needed
   template:
     src: buildtools.repo.j2

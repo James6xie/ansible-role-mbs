@@ -1,4 +1,3 @@
-
 WSGIDaemonProcess mbs user=fedmsg group=fedmsg maximum-requests=1000 display-name=mbs processes={{ mbs_wsgi_procs }} threads={{ mbs_wsgi_threads }}
 WSGIApplicationGroup %{GLOBAL}
 WSGISocketPrefix run/wsgi
@@ -29,5 +28,53 @@ WSGIScriptAlias / /usr/share/mbs/mbs.wsgi
 {% endif %}
 </Location>
 
-RewriteEngine on
-RewriteRule ^(|/+)$ /module-build-service/1/module-builds/ [L,R=302]
+{% if mbs_frontend_https_enabled %}
+<VirtualHost *:80>
+   DocumentRoot /var/www/html
+   ServerName {{ mbs_frontend_host }}
+   CustomLog logs/{{ mbs_frontend_host }}_access.log combined
+   ErrorLog logs/{{ mbs_frontend_host }}_error.log
+
+   {% if (mbs_config_no_auth | bool) == True %}
+   RewriteEngine On
+   RewriteCond $1 !^.well-known
+   RewriteCond %{HTTPS} !=on
+   RewriteRule ^/?(.*) https://%{SERVER_NAME}/$1 [R,L]
+   {% endif %}
+</VirtualHost>
+{% endif %}
+
+{% if mbs_frontend_https_enabled %}
+<VirtualHost *:443>
+  ServerName {{ mbs_frontend_host }}
+  DocumentRoot /var/www/{{ mbs_frontend_host }}
+  ErrorLog logs/ssl-{{ mbs_frontend_host }}_error.log
+  TransferLog logs/ssl-{{ mbs_frontend_host }}_access.log
+  LogLevel warn
+
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set X-Xss-Protection "1; mode=block"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "same-origin"
+  Header always set Strict-Transport-Security "max-age=31536000"
+
+  SSLEngine on
+  SSLHonorCipherOrder on
+  SSLProtocol all -SSLv2 -SSLv3
+  SSLCipherSuite ALL:!ADH:!EXPORT:!SSLv2:RC4+RSA:+HIGH:+MEDIUM:+LOW:!aNULL:!eNULL:!DES:!MD5:!PSK:!RC4
+  SSLCertificateFile /etc/pki/tls/certs/{{ mbs_frontend_host }}.crt
+  SSLCertificateKeyFile /etc/pki/tls/private/{{ mbs_frontend_host }}.key
+  SSLCertificateChainFile /etc/pki/tls/certs/{{ mbs_frontend_host }}-CAChain.crt
+  <Files ~ "\.(cgi|shtml|phtml|php3?)$">
+      SSLOptions +StdEnvVars
+  </Files>
+  <Directory "/var/www/cgi-bin">
+      SSLOptions +StdEnvVars
+  </Directory>
+  SetEnvIf User-Agent ".*MSIE.*" \
+           nokeepalive ssl-unclean-shutdown \
+           downgrade-1.0 force-response-1.0
+  CustomLog logs/ssl-{{ mbs_frontend_host }}_request.log \
+            "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+</VirtualHost>
+{% endif %}

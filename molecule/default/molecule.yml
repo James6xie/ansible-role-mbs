@@ -26,19 +26,15 @@ provisioner:
   inventory:
     group_vars:
       all:
-        # psql vars
-        psql_hba_conf_file: ${MOLECULE_PROJECT_DIRECTORY}/molecule/files/pg_hba.conf
         # msb vars
         mbs_env: stg
         mbs_default_modules_dir: ${MOLECULE_PROJECT_DIRECTORY}/molecule/files/default-modules
         mbs_frontend_https_enabled: false
         mbs_frontend_http_enabled: true
         mbs_config_no_auth: true
+        mbs_kojihub_auth_type: 'kerberos'
+        mbs_pki_store:  ${MOLECULE_PROJECT_DIRECTORY}/molecule/files/
         # fedmsg vars
-        fedmsg_buildtools_repo_name: BuildTools
-        fedmsg_buildtools_repo_baseurl: http://buildlogs.centos.org/centos/8/infra/x86_64/buildtools-common/
-        fedmsg_buildtools_repo_enabled: 1
-        fedmsg_buildtools_repo_gpgcheck:  0
         fedmsg_hub_bin: /usr/bin/fedmsg-hub
         fedmsg_env: stg
         fedmsg_log_level: DEBUG
@@ -48,9 +44,6 @@ provisioner:
         fedmsg_websocket_port: 9919
         fedmsg_status_directory: /var/run/fedmsg/status
         fedmsg_post_init_sleep: 1
-        # httpd role vars
-        httpd_public: false
-        pki_hostname: localhost
 verifier:
   name: ansible
 scenario:

@@ -25,14 +25,14 @@
 
 - name: Ensure vhost exists
   rabbitmq_vhost:
-    name: "{{ rabbitmq_vhost }}"
+    name: "{{ mbs_rabbitmq_vhost }}"
     state: present
 
 - name: Ensure user exists and has access to vhost
   rabbitmq_user:
-    user: "{{ rabbitmq_username }}"
-    password: "{{ rabbitmq_password }}"
-    vhost: "{{ rabbitmq_vhost }}"
+    user: "{{ mbs_rabbitmq_username }}"
+    password: "{{ mbs_rabbitmq_password }}"
+    vhost: "{{ mbs_rabbitmq_vhost }}"
     configure_priv: .*
     read_priv: .*
     write_priv: .*

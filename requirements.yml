@@ -1,5 +1,0 @@
-- src: https://github.com/CentOS/ansible-role-httpd
-  name: httpd
-
-- src: https://github.com/CentOS/ansible-role-fedmsg
-  name: fedmsg
