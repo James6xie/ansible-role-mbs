@@ -1,19 +1,19 @@
 [koji]
-server = {{ kojihub_top_url }}/kojihub
-weburl = {{ kojihub_top_url }}/koji
-topurl = {{ kojihub_top_url }}
+server = {{ mbs_kojihub_top_url }}/kojihub
+weburl = {{ mbs_kojihub_top_url }}/koji
+topurl = {{ mbs_kojihub_top_url }}
 
-authtype = {{ kojihub_auth_type }}
-{% if  kojihub_auth_type == 'kerberos' %}
-krb_rdns = {{ kojihub_kerberos_rdns | bool }}
+authtype = {{ mbs_kojihub_auth_type }}
+{% if  mbs_kojihub_auth_type == 'kerberos' %}
+krb_rdns = {{ mbs_kojihub_kerberos_rdns | bool }}
 ;the principal to auth as for automated clients
 principal = {{ mbs_config_krb_principal }}
 ;the keytab to auth as for automated clients
-keytab = {{ mbs_config_krb_keytab }}
+keytab = /etc/module-build-service/{{ mbs_config_krb_keytab }}
 {% endif %}
-{% if  kojihub_auth_type == 'ssl' %}
-cert = {{ kojihub_ssl_cert }}
-serverca = {{ kojihub_ssl_ca }}
+{% if  mbs_kojihub_auth_type == 'ssl' %}
+cert = {{ mbs_kojihub_ssl_cert }}
+serverca = {{ mbs_kojihub_ssl_ca }}
 {% endif %}
 
-use_fast_upload = {{ kojihub_use_fast_upload | bool }}
+use_fast_upload = {{ mbs_kojihub_use_fast_upload | bool }}

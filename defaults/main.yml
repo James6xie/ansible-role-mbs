@@ -1,32 +1,37 @@
 ---
 # defaults file for mbs
-
-# Do we want to deploy frontend, backend
-mbs_frontend: False
-mbs_backend: False
-
-
+mbs_buildtools_repo_gpgkey: "{{ kojid_buildtools_repo_gpgkey | default('') }}"
+mbs_env: "{{ centos_infra_env | default('prod') }}"
+mbs_frontend: True
+mbs_backend: True
 mbs_cert_prefix: mbs
 mbs_import_default_modules: true
 mbs_upgrade_db: true
 mbs_num_workers: 3
 mbs_celery_max_worker_tasks: 10
 mbs_default_modules_dir: default-modules
+mbs_pki_store: "{{ pkistore | default('./') }}"
+# psql
+mbs_postgres_local: True
+mbs_postgres_hostname: localhost
+mbs_postgres_username: mbs
+mbs_postgres_password: mbs
+mbs_postgres_database: mbs
 # rabbitmq
-rabbitmq_local: True
-rabbitmq_vhost: mbs
-rabbitmq_username: mbs
-rabbitmq_password: mbs
+mbs_rabbitmq_local: True
+mbs_rabbitmq_vhost: mbs
+mbs_rabbitmq_username: mbs
+mbs_rabbitmq_password: mbs
 # kojihub
-kojihub_top_url: https://cbs.centos.org
-kojihub_use_fast_upload: true
-kojihub_auth_type: kerberos
-kojihub_kerberos_rdns: false
+mbs_kojihub_top_url: https://cbs.centos.org
+mbs_kojihub_use_fast_upload: true
+mbs_kojihub_auth_type: kerberos
+mbs_kojihub_kerberos_rdns: false
 #mbs config.py
-mbs_config_broker_url: 'amqp://{{ rabbitmq_username }}@{{ rabbitmq_password }}:localhost:5627/{{ rabbitmq_vhost }}'
+mbs_config_broker_url: 'amqp://{{ mbs_rabbitmq_username }}@{{ mbs_rabbitmq_password }}:localhost:5627/{{ mbs_rabbitmq_vhost }}'
 mbs_config_debug: false
 mbs_config_secret_key: a1b2c3d4
-mbs_config_database_url: postgresql://mbs:mbs@localhost/mbs
+mbs_config_database_url: postgresql://{{ mbs_postgres_username }}:{{ mbs_postgres_password }}@{{ mbs_postgres_hostname }}/{{ mbs_postgres_database }}
 mbs_config_system: koji
 mbs_config_messaging: fedmsg
 mbs_config_messaging_topic_prefix: ['org.centos.prod']
@@ -48,7 +53,7 @@ mbs_config_log_backend: file
 mbs_config_log_file: /var/log/mbs/module_build_service.log
 mbs_config_log_level: info
 mbs_config_logs_build_dir: /var/tmp
-mbs_config_krb_keytab: /etc/krb5.mbs_mbs{{ mbs_config_env }}.centos.org.keytab
+mbs_config_krb_keytab: mbs-{{ mbs_env }}.centos.org.keytab
 mbs_config_krb_principal: cbs-koji@DEV.CENTOS.ORG
 mbs_config_allowed_groups:
   - packager

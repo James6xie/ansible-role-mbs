@@ -9,11 +9,18 @@ See also [ansible-infra-playbooks](https://github.com/CentOS/ansible-infra-playb
 See [defaults variables and explanations](defaults/main.yml)
 
 ```
-mbs_import_default_modules: boolean flag to import modules from mbs_default_modules_dir
+mbs_env: mbs environment, it will try to inherit the value from "centos_infra_env", valud choices: dev, stg and prod.
+mbs_import_default_modules: boolean flag to import modules from a local dir
 mbs_upgrade_db: boolean flag which defines if `mbs-manager upgrade db` should run during instllation
 mbs_num_workers: number of mbs workers added as systemd service
 mbs_celery_max_worker_tasks: max of tasks that can be executed per worker
 mbs_default_modules_dir: local module dir to import modules from (yaml files)
+# postgresql
+mbs_postgres_local: boolean flag to determine if mbs role needs to install psql using centos postgresql role
+mbs_postgres_hostname: postgresql hostname
+mbs_postgres_username: postgresql username
+mbs_postgres_password: postgresql password
+mbs_postgres_database: potsgresql database
 # rabbitmq
 rabbitmq_local: boolean flag that wll install a local rabbitmq instance if set to true 
 rabbitmq_vhost: rabbitmq vhost to use or create
@@ -27,16 +34,15 @@ kojihub_kerberos_rdns: bool flag to enable/disable koji kerberos rdns
 #mbs config.py
 mbs_config_broker_url: celery broker url to use, defaults to local rabbitmq instance
 mbs_config_debug: bool flag that enables/disables mbs debug mode
-mbs_config_env: "{{ mbs_config_type }}" #
-mbs_config_secret_key: a1b2c3d4 #
-mbs_config_database_url: mbs database url
+mbs_config_secret_key: random string to be used by mbs frontend
+mbs_config_database_url: mbs postgresql url, it is formed by psql vars: "postgresql://{{ mbs_postgres_username }}:{{ mbs_postgres_password }}@{{ mbs_postgres_hostname }}/{{ mbs_postgres_database }}"
 mbs_config_system: mbs build system, defaults to "koji"
 mbs_config_messaging: mbs messaging backend type, defaults to "fedmsg"
 mbs_config_messaging_topic_prefix: 'org.centos.mbs' #
 mbs_config_koji_file: path to the mbs koji conf file, defaulta to  /etc/module-build-service/koji.conf
 mbs_config_koji_profile: mbs koji profile to use, defaults to "koji"
 mbs_config_arches: a list of supported archs by this mbs instance
-mbs_config_koji_proxy_user: true #
+mbs_config_koji_proxy_user: boolean flag to tell if mbs needs to proxy mbs username to koji
 mbs_config_koji_repository_url: koji repos url
 mbs_config_scm_urls: a list of allowed git urls for mbs to pull modules from
 mbs_config_polling_interval: mbs polling interval for mbs-poller

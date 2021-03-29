@@ -1,5 +1,4 @@
 ---
-
 - name: Configuring httpd
   include_role:
     name: httpd
@@ -7,13 +6,15 @@
 - include_role:
     name: httpd
   vars:
-    - httpd_tls: True
+    - httpd_tls: "{{ mbs_frontend_https_enabled | bool }}"
  
 - include_role:
     name: httpd
     tasks_from: pki-tls
   vars:
     pki_hostname: "{{ mbs_frontend_host }}"
+    pkistore: "{{ mbs_pki_store }}"
+  when: mbs_frontend_https_enabled | bool
 
 - name: Install mbs-frontend packages
   yum:
@@ -22,27 +23,25 @@
       - module-build-service
       - mod_auth_gssapi
     state: installed
-  notify: restart_httpd 
+  notify:
+    - Restart apache
 
 - name: Copy mbs httpd config
   template:
-    src: "mbs/{{ item }}.j2"
-    dest: "/etc/httpd/conf.d/{{ item }}"
+    src: "mbs/mbs.conf.j2"
+    dest: "/etc/httpd/conf.d/mbs.conf"
     owner: apache
     group: apache
     mode: 0644
-  with_items:
-    - mbs.conf
-    - 02_mbs.conf
-    - ssl-mbs.conf
   notify:
     - Restart apache
 
 - name: Ensure we have proper httpd keytab
   copy:
-    src: "{{ pkistore }}/krb5/{{ mbs_frontend_krb_keytab }}"
+    src: "{{ mbs_pki_store }}/krb5/{{ mbs_frontend_krb_keytab }}"
     dest: "/etc/httpd/conf.d/{{ mbs_frontend_krb_keytab }}"
     owner: apache
+  when: (mbs_config_no_auth | bool) == False
 
 - name: Ensure /usr/share/mbs folder exists
   file:
@@ -67,4 +66,3 @@
     - httpd_can_network_memcache
     - httpd_can_network_connect
     - httpd_can_sendmail
-  

@@ -3,10 +3,10 @@
 - include_tasks: system.yml
 # rabbitmq
 - include_tasks: rabbitmq.yml
-  when: rabbitmq_local
+  when: mbs_rabbitmq_local | bool
 # msb-backend setup
 - include_tasks: mbs-backend.yml
-  when: mbs_backend
+  when: mbs_backend | bool
 # msb-frontend setup
 - include_tasks: mbs-frontend.yml
-  when: mbs_frontend
+  when: mbs_frontend | bool
